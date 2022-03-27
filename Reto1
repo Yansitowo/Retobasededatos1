@@ -1,0 +1,281 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+#define MAX_X 30
+#define MAX_Y 5
+
+using namespace std;
+
+struct Persona
+{
+string rut;
+string nombre;
+float altura;
+int edad;
+};
+
+void crearArchivoConDatosDePrueba (string nombreArchivo);
+void leerArchivo(string nombreArchivo);
+int numeroLineas(string nombreArchivo);
+void procesarMatrizDesdeArchivo(string miDatos[MAX_X][MAX_Y], string nombreArchivo, int hastaX, int hastaY);
+void procesarMatrizPersonas(string miDatos[MAX_X][MAX_Y], Persona personas[MAX_X], int hastaX);
+void MasAltoYMasBajo(string miDatos[MAX_X][MAX_Y], Persona[MAX_X], int hastaX);
+void MasViejoYMasJoven(string miDatos[MAX_X][MAX_Y], Persona[MAX_X], int hastaX);
+void PromedioEdades(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX);
+void promedioAlturas(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX);
+
+int main()
+{
+  setlocale(LC_CTYPE,"Spanish");
+
+  string nombreArchivo = "personas.txt";
+  string miDatos[MAX_X][MAX_Y];
+  Persona personas[MAX_X];
+
+  crearArchivoConDatosDePrueba(nombreArchivo);
+  leerArchivo(nombreArchivo);
+  int numLineas = numeroLineas(nombreArchivo);
+  procesarMatrizDesdeArchivo(miDatos, nombreArchivo, numLineas,  MAX_Y);
+  procesarMatrizPersonas(miDatos, personas, numLineas);
+  MasAltoYMasBajo(miDatos, personas, numLineas);
+  MasViejoYMasJoven(miDatos, personas, numLineas);
+  PromedioEdades(miDatos, personas, numLineas);
+  promedioAlturas(miDatos, personas, numLineas);
+  return 0;
+}
+
+  int numeroLineas(string nombreArchivo){
+    cout << "Funcion para contar lineas" << endl;
+    ifstream archivo;
+    
+    int i=0;
+
+    archivo.open(nombreArchivo.c_str(), ios::in);
+
+    if(archivo.is_open())
+    {
+      string linea;
+      while(getline(archivo, linea, '\n'))
+        {
+          i++;
+        }
+    }
+    cout << "Numero de lineas es: " << i << endl << endl;
+    archivo.close();
+    return i;
+  }
+
+  void crearArchivoConDatosDePrueba(string nombreArchivo)
+  {
+    cout << "Procedimiento para crear archivos" << endl;
+    ofstream archivo;
+    archivo.open(nombreArchivo, ios::out);
+
+    if (archivo.is_open ()) {
+        archivo << "1;20.48.96-K;NUNEZ GUAJARDO, MIGUEL ANGEL;155.5;14"<<endl;
+        archivo << "2;19.63.92-3;ABARCA SAN MARTIN, SERGIO IGNACIO;144.6;68"<<endl;
+        archivo << "3;20.19.58-1;DIAZ DIAZ, RODRIGO ALEJANDRO;175;55"<<endl;
+        archivo << "5;20.63.19-7;BEAS URRUTIA, MARCELO ALFONSO;145.2;22"<<endl;
+        archivo << "7;20.69.42-3;CASTILLO DONOSO, NICOLAS ALBERTO;123.4;26"<<endl;
+        archivo << "8;20.10.48-0;CISTERNA AHUMADA, JONATHAN ANDRES;240.4;28"<<endl;
+        archivo << "10;20.78.80-2;CORTES VERA, MATIAS ANDRES;170.4;30"<<endl;
+        archivo << "11;20.65.92-1;DIAZ MANRIQUEZ, NICOLAS;180.7;34"<<endl;
+        archivo << "12;20.19.65-9;ONATE PIEDRAS, ROBERTO IGNACIO;160.3;35"<<endl;
+        archivo << "13;20.58.13-8;ESPINOZA PACHECO, CAROLINA ANTONIA;140.6;38"<<endl;
+        archivo << "14;20.28.42-8;FUENTES CORTES, BENJAMIN ISRAEL;155.4;405"<<endl;
+        archivo << "15;20.45.66-7;GARCIA FUENTES, RICARDO JOSE;166.3;50"<<endl;
+        archivo.close ();
+        
+        cout << "archivo creado con éxito" << endl<<endl;
+    }  else {
+      cout << "error";
+    }
+  }
+  
+  void leerArchivo(string nombreArchivo)
+  {
+    cout << "Procedimiento para leer archivos" <<endl;
+    
+    ifstream archivo;
+    
+    archivo.open(nombreArchivo.c_str(),ios::in);
+
+    if(archivo.is_open())
+    {
+      string linea;
+      int i=1;
+      while (getline(archivo, linea, '\n'))
+        {
+          cout << i++ << ">" << linea << endl;
+        }
+      cout << endl;
+    }
+    
+  archivo.close();
+    
+  }
+
+  void procesarMatrizDesdeArchivo(string miDatos[MAX_X][MAX_Y], string nombreArchivo, int hastaX, int hastaY){
+    int fila = 0;
+    int columna = 0;
+
+    for (int x = 0; x < hastaX; x++)
+      for (int y = 0; y < hastaY; y++)
+        miDatos[x][y] = "";
+    
+  ifstream archivoLecturaProcesar;
+  archivoLecturaProcesar.open(nombreArchivo, ios::in);
+
+  if(archivoLecturaProcesar.is_open())
+  {
+    string lineaLeida;
+    while(getline(archivoLecturaProcesar, lineaLeida, '\n'))
+      {
+        stringstream ss(lineaLeida);
+        string palabra;
+        columna = 0;
+        while (getline(ss, palabra, ';'))
+          {
+            miDatos[fila][columna] = palabra;
+            columna++;
+          }
+        fila++;
+      }
+    
+    archivoLecturaProcesar.close();
+    cout << "Apertura y matriz con exito" << endl << endl;
+  }
+  else
+    {
+      cout << "error de apertura" << endl << endl;
+    } 
+  }
+
+  void procesarMatrizPersonas(string miDatos[MAX_X][MAX_Y], Persona personas[MAX_X], int hastaX)
+  {
+    cout << "Procedimiento para procesar Matriz a personas" << endl;
+    int fila =0;
+    int columna=0;
+
+    
+    for(int x=0; x < hastaX; x++)
+    {
+      personas[x].rut = miDatos[x][1]; 
+      personas[x].nombre = miDatos[x][2];
+      personas[x].altura = atof(miDatos[x][3].c_str()); 
+      personas[x].edad = atof(miDatos[x][4].c_str()); 
+    }
+        
+    for(int x=0; x < hastaX; x++)
+        cout << "Rut: " << personas[x].rut << " - Nombre: " << personas[x].nombre  << " - Altura: " <<         personas[x].altura  << " - Edad: " << personas[x].edad  << endl;
+}
+
+void MasAltoYMasBajo(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX)//la funcion con la info que necesita para funcionar (esta funcion la calque de youtube, la implemente mal, pelie 1 hora con el codigo y note que el eror era mio, tiene casi nada de cambios mas que el nombre de las auxiliares)
+{
+  int pMayor, pMenor; //auxiliares
+  float masAlta = 0, masBaja = 9999; // para que compare los datos en referencia a algo a mededia que avanza el codigo
+  
+  for(int x = 0; x < hastaX; x++)// para que se repita la cantidad de veces necesaria
+  {
+    
+    personas[x].altura = atof(miDatos[x][3].c_str()); // sacamos la info del struct (usamos el "[3]" ya que ahi esta la altura, en los otros usamos "[4]" ya que ahi se encuentra la info que corresponde a esa funcion)
+
+    if(personas[x].altura > masAlta)//comparamos en base a la referencia y se repite la cantidad de veces necesaria hasta determinar el mas alto
+    {
+      masAlta = personas[x].altura;
+      pMayor = x;
+    }
+    if(personas[x].altura < masBaja)//lo mismo que el anterior pero para el menor
+    {
+      masBaja = personas[x].altura;
+      pMenor = x;
+    }
+  
+}
+  cout << "\n";//para el orden, no lo implemente con el orden de ustes para darle mi toque
+  cout << "- - - - - Mas Alta & Baja - - - - - \n";//para el orden y abajo se imprime la info de la funcion
+  cout << "Persona mas alta :";
+  cout << "nombre:" << personas[pMayor].nombre << endl;
+  cout << "Altura:" << personas[pMayor].altura << endl;
+  cout << "- - - - - - - - - - - \n"; 
+  cout << "Persona mas Baja :";
+  cout << "nombre:" << personas[pMenor].nombre << endl;
+  cout << "Altura:" << personas[pMenor].altura << endl;
+}
+
+//esta funcion es lo mismo que la anterior solo que en vez de usar .altura usamos .edad y modificamos las auxiliares para ayudar con el orden, ocurre lo mismo con los promedios 
+void MasViejoYMasJoven(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX)//la funcion con la info que necesita
+{
+
+int pVieja, pJoven; //auxiliares
+  float masVieja = 0, masJoven = 9999;//para comparar la info en refernecia a algo
+  
+  for(int x = 0; x < hastaX; x++)//para que se repita la cantidad de veces necesarias
+  {
+    
+    personas[x].edad = atof(miDatos[x][4].c_str());// usamos el [4] ya que ahi estan las edades
+
+    if(personas[x].edad > masVieja)//comparativa para determinar a la mas vieja
+    {
+      masVieja = personas[x].edad;
+      pVieja = x;
+    }
+    if(personas[x].edad < masJoven)//comparativa para determinar a la mas joven
+    {
+      masJoven = personas[x].edad;
+      pJoven = x;
+    }
+  }
+  cout << "\n";//de aca a abajo es imprimir los resultados, nuevamente a mi manera para el orden
+  cout << "- - - - - Mas Vieja & Joven - - - - - \n";
+  cout << "Persona mas Vieja :";
+  cout << "Nombre:" << personas[pVieja].nombre << endl;
+  cout << "Edad:" << personas[pVieja].edad << endl;
+  cout << "- - - - - - - - - - - \n"; 
+  cout << "Persona mas Joven :";
+  cout << "Nombre:" << personas[pJoven].nombre << endl;
+  cout << "Edad:" << personas[pJoven].edad << endl;
+  
+  
+}
+
+void PromedioEdades(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX)//la funcion con la info que necesita para funcionar
+{
+  float pEdades, sEdades; //promedios de edades, suma de edades
+
+  for(int x = 0; x < hastaX; x++)//para que se repita el ciclo las veces que lo necesitemos
+  {
+    
+    personas[x].edad = atof(miDatos[x][4].c_str());//sacamos los datos de la base
+
+    sEdades = personas[x].edad + sEdades;// usamos el auxiliar para tener los datos temporalemnte
+
+    pEdades = sEdades / hastaX;// dividimos por "hastaX" pues si agragamos mas gente a la base asi siempre se va a dividir por la cantidad de gente que haya en la base al momento
+    
+    }  
+cout << "- - - - - Promedio de las edades - - - - - \n";// para adornar
+  cout << "El promedio de las edades es: " << pEdades << endl;//imprimimos el resultado
+  
+}
+
+void promedioAlturas(string miDatos[MAX_X] [MAX_Y], Persona personas[MAX_X], int hastaX)//la funcion con la info que necesita para funcionar
+{
+  float pAlturas, sAlturas; //promedios de alturas y suma de alturas
+
+  for(int x = 0; x < hastaX; x++)//para que se repita el ciclo las veces que lo necesitemos
+  {
+    
+    personas[x].altura = atof(miDatos[x][3].c_str());//sacamos los datos de la base
+
+    sAlturas = personas[x].altura + sAlturas;// usamos el auxiliar para tener los datos temporalemnte
+
+    pAlturas = sAlturas / hastaX;// dividimos por "hastaX" pues si agragamos mas gente a la base asi siempre se va a dividir por la cantidad de gente que haya en la base al momento
+    
+    }  
+  
+  cout << "- - - - - Promedio de las alturas - - - - - \n";//para que quede bonito
+  cout << "El promedio de las Alturas es: " << pAlturas << endl;//imprimimos el resultado
+
+}
